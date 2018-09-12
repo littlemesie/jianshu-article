@@ -12,33 +12,34 @@ def start_request():
     mongodbUtil = conn_mongodb.MongodbUtil()
     db = 'jianshu'
     col = 'programmer'
-    url = 'https://www.jianshu.com/c/NEt52a?order_by=commented_at&page=1'
-    res = requests.get(url,headers=headers)
-    soup = BeautifulSoup(res.text,'lxml')
-    li_list = soup.find('ul',class_='note-list').find_all('li')
-    data = {}
-    for li in li_list:
-        title = li.find('a',class_='title').text.strip()
-        title_id = li.find('a',class_='title')['href'].split('/')[-1]
-        article_url = 'https://www.jianshu.com' + li.find('a',class_='title')['href']
-        author = li.find('a',class_='nickname').text.strip()
-        author_id = li.find('a',class_='nickname')['href'].split('/')[-1]
-        author_url = 'https://www.jianshu.com' + li.find('a',class_='nickname')['href']
-        comment_num = li.find('div', class_='meta').find_all('a')[1].text.strip()
-        comment_url = 'https://www.jianshu.com' + li.find('div', class_='meta').find_all('a')[1]['href']
-        like_num = li.find('div', class_='meta').find('span').text.strip()
-        data['title_id'] = title_id
-        data['title'] = title
-        data['author_id'] = author_id
-        data['author'] = author
-        data['comment_num'] = comment_num
-        data['like_num'] = like_num
-        comment_list = article_content(article_url, int(comment_num))
-        data['commtens'] = comment_list
-        mongodbUtil.insert_one(db,col,data)
-        print(data)
-        print(article_url,author_url,comment_url)
-        break
+    for i in range(1,50000):
+        url = 'https://www.jianshu.com/c/NEt52a?order_by=commented_at&page=' + str(i)
+        res = requests.get(url,headers=headers)
+        soup = BeautifulSoup(res.text,'lxml')
+        li_list = soup.find('ul',class_='note-list').find_all('li')
+        data = {}
+        for li in li_list:
+            title = li.find('a',class_='title').text.strip()
+            title_id = li.find('a',class_='title')['href'].split('/')[-1]
+            article_url = 'https://www.jianshu.com' + li.find('a',class_='title')['href']
+            author = li.find('a',class_='nickname').text.strip()
+            author_id = li.find('a',class_='nickname')['href'].split('/')[-1]
+            author_url = 'https://www.jianshu.com' + li.find('a',class_='nickname')['href']
+            comment_num = li.find('div', class_='meta').find_all('a')[1].text.strip()
+            comment_url = 'https://www.jianshu.com' + li.find('div', class_='meta').find_all('a')[1]['href']
+            like_num = li.find('div', class_='meta').find('span').text.strip()
+            data['title_id'] = title_id
+            data['title'] = title
+            data['author_id'] = author_id
+            data['author'] = author
+            data['comment_num'] = comment_num
+            data['like_num'] = like_num
+            comment_list = article_content(article_url, int(comment_num))
+            data['commtens'] = comment_list
+            mongodbUtil.insert_one(db,col,data)
+            print(data)
+            print(article_url,author_url,comment_url)
+            break
 
 def article_content(url,comment_num):
 
